@@ -3,3 +3,4 @@ Temp/
 *.sln
 *.userprefs
 *.csproj
+Test/obj/

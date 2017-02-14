@@ -1,0 +1,47 @@
+ManifestFileVersion: 0
+CRC: 3017896208
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 25dd518887b54843cc2403c68263f250
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 2ece144e5bef9cb5cb2e5072805b4496
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 54
+  Script: {instanceID: 0}
+- Class: 135
+  Script: {instanceID: 0}
+- Class: 136
+  Script: {instanceID: 0}
+- Class: 193
+  Script: {instanceID: 0}
+- Class: 205
+  Script: {instanceID: 0}
+- Class: 226
+  Script: {instanceID: 0}
+- Class: 227
+  Script: {instanceID: 0}
+- Class: 228
+  Script: {instanceID: 0}
+Assets:
+- Assets/Standard Assets/Environment/SpeedTree/Conifer/Conifer_Desktop.spm
+- Assets/Standard Assets/Environment/SpeedTree/Broadleaf/Broadleaf_Desktop.spm
+Dependencies: []

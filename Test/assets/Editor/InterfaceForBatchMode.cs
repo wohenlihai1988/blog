@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using System.IO;
 
 public class InterfaceForBatchMode {
 
@@ -24,6 +25,7 @@ public class InterfaceForBatchMode {
 		string output = "";
 		Serialize<Transform> (ref output, data);
 		Debug.LogError (output);
+		GameObject.DestroyImmediate(root);
 		return array [0];
 	}
 
@@ -31,11 +33,11 @@ public class InterfaceForBatchMode {
 		
 	}
 
-	static void GenerateGoTree(ref  TreeData<Transform> treeParent, Transform goParent){
-		TreeData<Transform> data = new TreeData<Transform> (goParent);
+	static void GenerateGoTree(ref TreeData<Transform> treeParent, Transform current){
+		TreeData<Transform> data = new TreeData<Transform> (current);
 		data.SetParent (treeParent);
-		for (int i = 0; i < goParent.childCount; i++) {
-			GenerateGoTree (ref data, goParent.GetChild (i));
+		for (int i = 0; i < current.childCount; i++) {
+			GenerateGoTree (ref data, current.GetChild(i));
 		}
 	}
 
@@ -75,15 +77,61 @@ public class InterfaceForBatchMode {
 	}
 
 	static void Serialize<T> (ref string output, TreeData<T> data){
-		if (null == data.Data) {
-			output += "";
-		} else {
-			output += (data.Data as Transform).name;
-		}
 		output += "{";
-		for (int i = 0; i < data.childList.Count; i++) {
-			Serialize<T> (ref output, data.childList [i]);
+		LoopSerialize<T>(ref output, data);
+		output += "}";
+	}
+
+	static void LoopSerialize<T> (ref string output, TreeData<T> data){
+		var trans = data.Data as Transform;
+		output += "\"" + trans.name + "\":{";
+		if(trans.localPosition != Vector3.zero){
+			output += "\"p\":\"" + trans.localPosition.ToString() + "\"";
+		}
+		if(trans.localEulerAngles != Vector3.zero){
+			output += ",\"r\":\"" + trans.localEulerAngles.ToString() + "\"";
+		}
+		if(trans.localScale != Vector3.one){
+			output += ",\"s\":\"" + trans.localScale.ToString() + "\"";
+		}
+		if(data.childList.Count > 0){
+			output += ",\"childs\":{";
+			for (int i = 0; i < data.childList.Count; i++) {
+				LoopSerialize<T> (ref output, data.childList [i]);
+			}
+			output += "}";
 		}
 		output += "}";
 	}
+
+	#region assetbundle test
+
+	static void OutputAB(){
+		var importer = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(Selection.activeInstanceID));
+		importer.assetBundleName = "tmp";
+		var manifest = BuildPipeline.BuildAssetBundles(Application.dataPath, BuildAssetBundleOptions.UncompressedAssetBundle, BuildTarget.StandaloneOSXIntel64);
+		var array = manifest.GetAllAssetBundles();
+		for(int i = 0; i < array.Length; i++){
+			Debug.LogError(array[i]);
+		}
+		importer.assetBundleName = "";
+		AssetDatabase.SaveAssets();
+		AssetDatabase.Refresh();
+	}
+
+	[MenuItem("Test/LoadAB")]
+	static void LoadAB(){
+		AssetBundle ab = new AssetBundle();
+		try{
+			ab = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath, "tmp"));
+			var array = ab.GetAllAssetNames();
+			for(int i = 0; i < array.Length; i++){
+				Debug.LogError(array);
+			}
+		}finally{
+			ab.Unload(true);
+		}
+	}
+
+	#endregion
 }
