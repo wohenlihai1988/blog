@@ -105,32 +105,59 @@ public class InterfaceForBatchMode {
 	}
 
 	#region assetbundle test
-
+	[MenuItem("Test/CreateAB")]
 	static void OutputAB(){
-		var importer = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(Selection.activeInstanceID));
-		importer.assetBundleName = "tmp";
-		var manifest = BuildPipeline.BuildAssetBundles(Application.dataPath, BuildAssetBundleOptions.UncompressedAssetBundle, BuildTarget.StandaloneOSXIntel64);
-		var array = manifest.GetAllAssetBundles();
+		CreateAB (AssetDatabase.GetAssetPath (Selection.activeInstanceID));
+	}
+
+	static void CreateAB(string path){
+		Debug.LogError (path);
+		var importer = AssetImporter.GetAtPath(path);
+		var abName = Path.GetFileName (path);
+		var array = AssetDatabase.GetDependencies (path);
+		for (int i = 0; i < array.Length; i++) {
+			Debug.LogError (array [i]);
+		}
+		importer.assetBundleName = abName;
+		var manifest = BuildPipeline.BuildAssetBundles(Application.dataPath + "/Temp/", BuildAssetBundleOptions.UncompressedAssetBundle, EditorUserBuildSettings.activeBuildTarget);
+		array = manifest.GetAllAssetBundles ();
 		for(int i = 0; i < array.Length; i++){
 			Debug.LogError(array[i]);
 		}
-		importer.assetBundleName = "";
-		AssetDatabase.SaveAssets();
+//		importer.assetBundleName = "";
 		AssetDatabase.Refresh();
 	}
 
 	[MenuItem("Test/LoadAB")]
 	static void LoadAB(){
-		AssetBundle ab = new AssetBundle();
+		var id = Selection.activeInstanceID;
+		AssetBundle ab = AssetBundle.LoadFromFile(AssetDatabase.GetAssetPath(id));
 		try{
-			ab = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath, "tmp"));
+			ab.LoadAllAssets();
 			var array = ab.GetAllAssetNames();
 			for(int i = 0; i < array.Length; i++){
-				Debug.LogError(array);
+				Debug.LogError(array[i]);
+				var go = ab.LoadAsset(array[i]);
+				GameObject.Instantiate(go);
 			}
-		}finally{
-			ab.Unload(true);
+		}catch(System.Exception e){
+			Debug.LogError (e);
 		}
+		finally{
+			if (null != ab) {
+				ab.Unload (false);
+			}
+		}
+	}
+
+	public static void CreateTmpAB(){
+		string[] arguments = System.Environment.GetCommandLineArgs ();
+		Debug.LogError ("CreateTmpAB");
+		for (int i = 0; i < arguments.Length; i++) {
+			Debug.LogError (arguments [i]);
+		}
+		var path = arguments [5];
+		CreateAB (path);
 	}
 
 	#endregion
